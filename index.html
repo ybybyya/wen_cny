@@ -75,14 +75,13 @@
     animation: glow 1.8s infinite alternate;
 }
 
-/* 副文字覆盖父类动画和发光 */
 .text .sub-text {
     display: block;
-    font-size: 50px;
+    font-size: 40px;
     margin-top: 20px;
     color: #fff;          /* 白色 */
-    text-shadow: none;    /* 取消发光 */
-    animation: none !important;  /* 取消继承的动画 */
+    text-shadow: none;  
+    animation: none !important;  
 }
 @keyframes glow {
     0% { text-shadow: 0 0 10px #fff,0 0 20px #ff99c1,0 0 40px #ff2e8c,0 0 60px #ff66aa; }
@@ -284,5 +283,6 @@ animate();
 
 </body>
 </html>
+
 
 
