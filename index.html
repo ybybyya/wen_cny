@@ -65,31 +65,29 @@ function Firework(x, y, isHeart=false) {
     this.y = y;
     this.particles = [];
     const color = Math.random()*360;
-    for (let i = 0; i < 80; i++) {
+    const numParticles = isHeart ? 120 : 80; // 爱心粒子更多
+    for (let i = 0; i < numParticles; i++) {
         let angle = Math.random() * 2 * Math.PI;
-        if(isHeart){
-            angle = Math.random()*2*Math.PI; // 随机散开
-        }
         this.particles.push({
             x: x,
             y: y,
             angle: angle,
-            speed: isHeart ? Math.random()*2+1.5 : Math.random()*6+2,
+            speed: isHeart ? Math.random()*2+2 : Math.random()*6+2,
             alpha: 1,
             color: color + Math.random()*60,
             isHeart: isHeart,
-            scale: Math.random()*1.2+0.8 // 爱心大小随机
+            scale: isHeart ? Math.random()*2+1 : Math.random()*1.2+0.8 // 爱心更大
         });
     }
     this.update = function () {
         this.particles.forEach(p => {
             if(p.isHeart){
                 p.x += Math.cos(p.angle) * p.speed;
-                p.y += Math.sin(p.angle) * p.speed + 0.2; // 爱心慢漂浮
-                p.alpha -= 0.015;
+                p.y += Math.sin(p.angle) * p.speed + 0.1; // 慢漂浮
+                p.alpha -= 0.01; // 渐隐慢一点
             } else {
                 p.x += Math.cos(p.angle) * p.speed;
-                p.y += Math.sin(p.angle) * p.speed + 0.5; // 普通烟花
+                p.y += Math.sin(p.angle) * p.speed + 0.5;
                 p.alpha -= 0.02;
             }
         });
@@ -98,13 +96,12 @@ function Firework(x, y, isHeart=false) {
         this.particles.forEach(p => {
             ctx.globalAlpha = p.alpha;
             if(p.isHeart){
-                // 爱心渐变
-                const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,4*p.scale);
-                grad.addColorStop(0,"#ff5ea1");
-                grad.addColorStop(0.5,"#ff99c1");
-                grad.addColorStop(1,"rgba(255,182,193,0)");
+                const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,6*p.scale);
+                grad.addColorStop(0,"#ff2e8c");  // 深粉
+                grad.addColorStop(0.5,"#ff99c1"); // 浅粉
+                grad.addColorStop(1,"rgba(255,182,193,0)"); // 透明
                 ctx.fillStyle = grad;
-                drawHeart(p.x, p.y, 4*p.scale);
+                drawHeart(p.x, p.y, 6*p.scale); // 爱心更大
             } else {
                 ctx.fillStyle = `hsl(${p.color},100%,50%)`;
                 ctx.beginPath();
@@ -231,7 +228,7 @@ function animate(){
 
 // ---------- 自动生成 ----------
 setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2)), 700);
-setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, true)), 3000); // 爱心烟花
+setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, true)), 2500); // 爱心烟花更频繁
 setInterval(()=>meteors.push(new Meteor()), 1500);
 setInterval(()=>new RedPacket(), 800);
 
