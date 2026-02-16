@@ -10,7 +10,6 @@ body {
     overflow: hidden;
     background: radial-gradient(circle at bottom, #000022, #000000 70%);
     font-family: "Microsoft YaHei", "Arial", sans-serif;
-    color: gold;
 }
 canvas {
     position: fixed;
@@ -39,15 +38,6 @@ canvas {
     text-shadow: 0 0 15px red;
 }
 @keyframes fadeIn { to { opacity: 1; } }
-.hongbao {
-    position: absolute;
-    font-size: 30px;
-    animation: fall linear infinite;
-}
-@keyframes fall {
-    from { transform: translateY(-100px) rotate(0deg); }
-    to { transform: translateY(110vh) rotate(360deg); }
-}
 </style>
 </head>
 <body>
@@ -94,10 +84,10 @@ function drawStars(){
 
 // ===== 烟花 =====
 class Firework {
-    constructor(x,y,type="circle"){
+    constructor(x, y, type="circle"){
         this.particles = [];
-        let colors = ["#ff4d4d","#ffff66","#ff66ff","#66ffff","#ffb366","#ffffff"];
-        let count = type==="heart"?120:80;
+        const colors = ["#ff4d4d","#ffff66","#ff66ff","#66ffff","#ffb366","#ffffff"];
+        const count = type==="heart"?120:80;
         for(let i=0;i<count;i++){
             let speed = Math.random()*7+2;
             let angle;
@@ -106,20 +96,20 @@ class Firework {
                 let r = 10*(1 - Math.sin(t));
                 angle = Math.atan2(-r*Math.sin(t), r*Math.cos(t));
                 speed = 4;
-            }else{
+            } else {
                 angle = Math.random()*2*Math.PI;
             }
             this.particles.push({
-                x:x,
-                y:y,
-                angle:angle,
-                speed:speed,
-                radius:Math.random()*3+1,
-                alpha:1,
-                decay:Math.random()*0.015+0.01,
+                x: x,
+                y: y,
+                angle: angle,
+                speed: speed,
+                radius: Math.random()*3+1,
+                alpha: 1,
+                decay: Math.random()*0.02+0.01,
                 color: colors[Math.floor(Math.random()*colors.length)],
-                gravity:0.05,
-                friction:0.95
+                gravity: 0.02, //轻微下坠
+                friction: 0.95
             });
         }
     }
@@ -137,44 +127,43 @@ class Firework {
             let gradient = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius*4);
             gradient.addColorStop(0,p.color);
             gradient.addColorStop(1,"rgba(0,0,0,0)");
-            ctx.fillStyle=gradient;
-            ctx.globalAlpha=p.alpha;
+            ctx.fillStyle = gradient;
+            ctx.globalAlpha = p.alpha;
             ctx.beginPath();
             ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
             ctx.fill();
         });
-        ctx.globalAlpha=1;
+        ctx.globalAlpha = 1;
     }
 }
 
 // ===== 红包 =====
 function createHongbao(){
-    let hb = {
+    hongbaos.push({
         x: Math.random()*canvas.width,
         y: -50,
         size: 30+Math.random()*20,
         speed: 2+Math.random()*3,
         angle: Math.random()*2*Math.PI
-    };
-    hongbaos.push(hb);
+    });
 }
 function drawHongbao(){
     hongbaos.forEach((hb,i)=>{
         ctx.save();
         ctx.translate(hb.x,hb.y);
         ctx.rotate(Math.sin(Date.now()/200+hb.angle));
-        ctx.font = `${hb.size}px "Arial"`;
+        ctx.font = `${hb.size}px Arial`;
         ctx.fillText("🧧",0,0);
         ctx.restore();
         hb.y += hb.speed;
-        if(hb.y>canvas.height+50) hongbaos.splice(i,1);
+        if(hb.y > canvas.height + 50) hongbaos.splice(i,1);
     });
 }
 setInterval(createHongbao,800);
 
 // ===== 动画循环 =====
 function animate(){
-    ctx.fillStyle="rgba(0,0,0,0.1)";
+    ctx.fillStyle = "rgba(0,0,0,0.1)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     drawStars();
     drawHongbao();
@@ -201,19 +190,19 @@ canvas.addEventListener("click",e=>{
 
 // ===== 倒数 =====
 let count=10;
-let cd=document.getElementById("countdown");
-let timer=setInterval(()=>{
+const cd = document.getElementById("countdown");
+let timer = setInterval(()=>{
     count--;
-    cd.innerText=count;
-    if(count<=0){
+    cd.innerText = count;
+    if(count <= 0){
         clearInterval(timer);
-        cd.innerText="🎆 HAPPY NEW YEAR 🎆";
-        // 页面震动
+        cd.innerText = "🎆 HAPPY NEW YEAR 🎆";
         if(window.navigator.vibrate){
             window.navigator.vibrate([200,100,200]);
         }
     }
 },1000);
+
 </script>
 
 </body>
