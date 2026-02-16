@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <title>🎆 郑有彣 新年快乐 🎆</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background: black;
-        font-family: "Arial Black", sans-serif;
+        font-family: 'ZCOOL QingKe HuangYou', cursive;
     }
     canvas {
         display: block;
@@ -19,7 +20,7 @@
         width: 100%;
         text-align: center;
         color: gold;
-        font-size: 70px;
+        font-size: 80px;
         font-weight: bold;
         text-shadow: 0 0 20px red, 0 0 40px yellow, 0 0 60px gold;
         pointer-events: none;
@@ -27,20 +28,21 @@
     }
     @keyframes glow {
         0% { text-shadow: 0 0 20px red, 0 0 40px yellow, 0 0 60px gold; }
-        100% { text-shadow: 0 0 30px red, 0 0 60px yellow, 0 0 80px gold; }
+        100% { text-shadow: 0 0 30px red, 0 0 60px yellow, 0 0 90px gold; }
     }
     .red-packet {
         position: absolute;
-        width: 40px;
-        height: 50px;
-        background: red;
-        border-radius: 5px;
+        width: 50px;
+        height: 60px;
+        background: linear-gradient(to bottom, #ff4d4d, #b20000);
+        border: 2px solid gold;
+        border-radius: 8px;
         color: gold;
         font-weight: bold;
         text-align: center;
-        line-height: 50px;
-        font-size: 18px;
-        box-shadow: 0 0 10px gold;
+        line-height: 60px;
+        font-size: 20px;
+        box-shadow: 0 0 15px gold;
         transform: rotate(0deg);
         pointer-events: none;
     }
@@ -70,26 +72,39 @@ for(let i=0;i<100;i++){
 
 // ---------- 烟花 ----------
 let fireworks = [];
-function Firework(x, y) {
+function Firework(x, y, isHeart=false) {
     this.x = x;
     this.y = y;
     this.particles = [];
     const color = Math.random()*360;
     for (let i = 0; i < 80; i++) {
+        let angle = Math.random() * 2 * Math.PI;
+        if(isHeart){
+            // 爱心形状公式 r = 1 - sinθ
+            angle = i / 80 * 2 * Math.PI;
+        }
         this.particles.push({
             x: x,
             y: y,
-            angle: Math.random() * 2 * Math.PI,
-            speed: Math.random() * 6 + 2,
+            angle: angle,
+            speed: isHeart ? Math.random()*2+2 : Math.random()*6+2,
             alpha: 1,
-            color: color + Math.random()*60
+            color: color + Math.random()*60,
+            isHeart: isHeart
         });
     }
     this.update = function () {
         this.particles.forEach(p => {
-            p.x += Math.cos(p.angle) * p.speed;
-            p.y += Math.sin(p.angle) * p.speed + 0.5; // 重力
-            p.alpha -= 0.02;
+            if(p.isHeart){
+                const t = p.angle;
+                p.x = this.x + 16*Math.pow(Math.sin(t),3)*10;
+                p.y = this.y - (13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))*10;
+                p.alpha -= 0.02;
+            } else {
+                p.x += Math.cos(p.angle) * p.speed;
+                p.y += Math.sin(p.angle) * p.speed + 0.5;
+                p.alpha -= 0.02;
+            }
         });
     };
     this.draw = function () {
@@ -135,10 +150,10 @@ let redPackets = [];
 function RedPacket() {
     this.el = document.createElement('div');
     this.el.className = 'red-packet';
-    this.el.innerText = '🧧';
+    this.el.innerText = '福';
     document.body.appendChild(this.el);
     this.x = Math.random()*window.innerWidth;
-    this.y = -50;
+    this.y = -60;
     this.speedY = Math.random()*2 + 1;
     this.speedX = Math.random()*1 - 0.5;
     this.angle = 0;
@@ -191,6 +206,7 @@ function animate(){
 
 // ---------- 自动生成 ----------
 setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2)), 700);
+setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, true)), 3000); // 爱心烟花
 setInterval(()=>meteors.push(new Meteor()), 1500);
 setInterval(()=>new RedPacket(), 800);
 
