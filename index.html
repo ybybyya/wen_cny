@@ -1,5 +1,6 @@
+帮我加强这个
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>🎆 新年快乐 🎆</title>
@@ -18,10 +19,9 @@
         width: 100%;
         text-align: center;
         color: gold;
-        font-size: 60px;
-        font-family: "Arial Black", sans-serif;
-        text-shadow: 0 0 20px red, 0 0 40px yellow, 0 0 60px gold;
-        pointer-events: none;
+        font-size: 40px;
+        font-family: sans-serif;
+        text-shadow: 0 0 20px red;
     }
 </style>
 </head>
@@ -33,43 +33,31 @@
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let fireworks = [];
-let stars = [];
-
-// 随机生成夜空流星
-for(let i=0;i<100;i++){
-    stars.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        size: Math.random()*2,
-        alpha: Math.random()
-    });
-}
 
 function Firework(x, y) {
     this.x = x;
     this.y = y;
     this.particles = [];
-    const color = Math.random()*360;
 
-    for (let i = 0; i < 80; i++) {  // 增加粒子数量
+    for (let i = 0; i < 50; i++) {
         this.particles.push({
             x: x,
             y: y,
             angle: Math.random() * 2 * Math.PI,
-            speed: Math.random() * 6 + 2,
-            alpha: 1,
-            color: color + Math.random()*60
+            speed: Math.random() * 5 + 2,
+            alpha: 1
         });
     }
 
     this.update = function () {
         this.particles.forEach(p => {
             p.x += Math.cos(p.angle) * p.speed;
-            p.y += Math.sin(p.angle) * p.speed + 0.5; // 模拟重力
+            p.y += Math.sin(p.angle) * p.speed;
             p.alpha -= 0.02;
         });
     };
@@ -77,7 +65,7 @@ function Firework(x, y) {
     this.draw = function () {
         this.particles.forEach(p => {
             ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = `hsl(${p.color},100%,50%)`;
+            ctx.fillStyle = `hsl(${Math.random()*360},100%,50%)`;
             ctx.beginPath();
             ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
             ctx.fill();
@@ -86,86 +74,31 @@ function Firework(x, y) {
     };
 }
 
-function Meteor() {
-    this.x = Math.random()*canvas.width;
-    this.y = Math.random()*canvas.height/2;
-    this.len = Math.random()*100 + 50;
-    this.speed = Math.random()*10 + 5;
-    this.angle = Math.PI/4;
-    this.alpha = 1;
-
-    this.update = function () {
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed;
-        this.alpha -= 0.01;
-    }
-
-    this.draw = function() {
-        ctx.globalAlpha = this.alpha;
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x - this.len*Math.cos(this.angle), this.y - this.len*Math.sin(this.angle));
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-    }
-}
-
-let meteors = [];
-
 function animate() {
-    // 夜空背景
     ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 星星
-    stars.forEach(s => {
-        ctx.globalAlpha = s.alpha;
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, 2*Math.PI);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    });
-
-    fireworks.forEach((f,i)=>{
+    fireworks.forEach((f, index) => {
         f.update();
         f.draw();
-        if(f.particles[0].alpha <=0) fireworks.splice(i,1);
-    });
-
-    meteors.forEach((m,i)=>{
-        m.update();
-        m.draw();
-        if(m.alpha <=0) meteors.splice(i,1);
+        if (f.particles[0].alpha <= 0) {
+            fireworks.splice(index, 1);
+        }
     });
 
     requestAnimationFrame(animate);
 }
 
-// 自动生成烟花
+canvas.addEventListener("click", function (e) {
+    fireworks.push(new Firework(e.clientX, e.clientY));
+});
+
 setInterval(() => {
     fireworks.push(new Firework(
         Math.random() * canvas.width,
         Math.random() * canvas.height / 2
     ));
-}, 700);
-
-// 自动生成流星
-setInterval(() => {
-    meteors.push(new Meteor());
-}, 1500);
-
-// 点击生成烟花
-canvas.addEventListener("click", function (e) {
-    fireworks.push(new Firework(e.clientX, e.clientY));
-});
-
-// 页面加载自动震动模拟
-window.onload = function(){
-    if(navigator.vibrate) navigator.vibrate([100,50,100]);
-};
+}, 800);
 
 animate();
 </script>
