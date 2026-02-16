@@ -178,13 +178,19 @@ function RedPacket() {
     this.el = document.createElement('div');
     this.el.className = 'red-packet';
     this.el.innerText = '🧧';
+
+    // 随机大小 40px ~ 60px，更大更显眼
+    this.size = Math.random() * 20 + 40; 
+    this.el.style.fontSize = this.size + 'px';
+
     document.body.appendChild(this.el);
-    this.x = Math.random()*window.innerWidth;
-    this.y = -60;
-    this.speedY = Math.random()*2 + 1;
-    this.speedX = Math.random()*1 - 0.5;
+    this.x = Math.random() * window.innerWidth;
+    this.y = -this.size; // 从红包高度以上开始
+    this.speedY = Math.random() * 2 + 1;
+    this.speedX = Math.random() * 1 - 0.5;
     this.angle = 0;
-    this.rotateSpeed = (Math.random()*2-1)*2;
+    this.rotateSpeed = (Math.random() * 2 - 1) * 2;
+
     this.update = () => {
         this.y += this.speedY;
         this.x += this.speedX;
@@ -192,13 +198,15 @@ function RedPacket() {
         this.el.style.top = this.y + 'px';
         this.el.style.left = this.x + 'px';
         this.el.style.transform = `rotate(${this.angle}deg)`;
-        if(this.y > window.innerHeight){
+        if (this.y > window.innerHeight) {
             document.body.removeChild(this.el);
-            redPackets.splice(redPackets.indexOf(this),1);
+            redPackets.splice(redPackets.indexOf(this), 1);
         }
     }
+
     redPackets.push(this);
 }
+
 
 // ---------- 动画 ----------
 function animate(){
@@ -252,3 +260,4 @@ animate();
 
 </body>
 </html>
+
