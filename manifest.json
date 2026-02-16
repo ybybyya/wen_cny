@@ -1,9 +1,10 @@
 {
   "name": "新年烟花2026",
-  "short_name": "新年烟花",
+  "short_name": "新年快乐",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#ff0000",
   "icons": []
 }
+
