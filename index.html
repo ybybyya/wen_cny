@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎆 新年快乐 2026 🎆</title>
+
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -22,30 +23,29 @@ canvas {
 
 #countdown {
     position: absolute;
-    top: 20%;
+    top: 30%;
     width: 100%;
     text-align: center;
     font-size: 80px;
     color: gold;
     text-shadow: 0 0 20px red, 0 0 40px orange;
-    z-index: 10;
 }
 
 #message {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
+    top: 15%;
+    width: 100%;
     text-align: center;
-    font-size: 24px;
+    font-size: 28px;
     color: gold;
-    line-height: 1.8;
-    text-shadow: 
-        0 0 10px #ff0000,
-        0 0 20px #ff6600,
-        0 0 40px gold;
-    z-index: 10;
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+    animation-delay: 10s;
+    text-shadow: 0 0 15px red;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
 }
 
 .hongbao {
@@ -65,12 +65,10 @@ canvas {
 <div id="countdown">10</div>
 
 <div id="message">
-✨🎆 祝郑有彣 2026年 🎆✨<br><br>
-💖 身体健康<br>
-💼 工作顺心<br>
-🌸 生活顺利<br>
-🧧 新年快乐<br><br>
-💕 爱我多多 💕
+🎆 祝郑有彣 2026年 🎆<br>
+身体健康 💖 工作顺心 💼<br>
+生活顺利 🌸 新年快乐 🧧<br>
+爱我多多 💕
 </div>
 
 <canvas id="canvas"></canvas>
@@ -81,147 +79,81 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// 🔥 烟花粒子
-class Particle {
-    constructor(x, y, color, radius=3, alpha=1, angle=null, speed=null){
-        this.x = x;
-        this.y = y;
-        this.color = color;
-        this.radius = radius;
-        this.alpha = alpha;
-        this.angle = angle || Math.random()*2*Math.PI;
-        this.speed = speed || Math.random()*6+2;
-    }
-    update(){
-        this.x += Math.cos(this.angle) * this.speed;
-        this.y += Math.sin(this.angle) * this.speed + 0.3; // gravity
-        this.alpha -= 0.02;
-    }
-    draw(){
-        ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
-}
-
-// 烟花数组
 let fireworks = [];
 
-// 🌌 流星
-let meteors = [];
-function createMeteor(){
-    meteors.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height/2,
-        length: Math.random()*80+50,
-        speed: Math.random()*8+4,
-        angle: Math.PI/4
-    });
-}
-
-// 🔥 生成烟花
-function launchFirework(x, y, color=null, count=80){
-    let colors = color ? [color] : ["#ff0000","#ff6600","#ffff00","#ff00ff","#00ffff","#ffffff"];
-    let p = [];
-    for(let i=0;i<count;i++){
-        p.push(new Particle(x, y, colors[Math.floor(Math.random()*colors.length)], Math.random()*3+1));
+class Firework {
+    constructor(x,y){
+        this.particles = [];
+        let colors = ["#ff0000","#ffff00","#ff00ff","#00ffff","#ff8800","#ffffff"];
+        for(let i=0;i<80;i++){
+            this.particles.push({
+                x:x,
+                y:y,
+                angle:Math.random()*2*Math.PI,
+                speed:Math.random()*6+2,
+                radius:Math.random()*3+1,
+                alpha:1,
+                color:colors[Math.floor(Math.random()*colors.length)]
+            });
+        }
     }
-    fireworks.push(p);
-}
-
-// 💖 爱心烟花
-function launchHeart(x,y){
-    const colors=["#ff69b4","#ff1493","#ff4500"];
-    let p=[];
-    for(let t=0;t<2*Math.PI;t+=0.2){
-        let scale=10;
-        let px = x + scale*16*Math.pow(Math.sin(t),3);
-        let py = y - scale*(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
-        p.push(new Particle(px, py, colors[Math.floor(Math.random()*colors.length)],3));
+    update(){
+        this.particles.forEach(p=>{
+            p.x+=Math.cos(p.angle)*p.speed;
+            p.y+=Math.sin(p.angle)*p.speed;
+            p.alpha-=0.015;
+        });
     }
-    fireworks.push(p);
+    draw(){
+        this.particles.forEach(p=>{
+            ctx.globalAlpha=p.alpha;
+            ctx.fillStyle=p.color;
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+            ctx.fill();
+        });
+        ctx.globalAlpha=1;
+    }
 }
 
-// 绘制所有
 function animate(){
     ctx.fillStyle="rgba(0,0,0,0.2)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    fireworks.forEach((pArr,i)=>{
-        pArr.forEach(p=>{
-            p.update();
-            p.draw();
-        });
-        if(pArr[0].alpha<=0) fireworks.splice(i,1);
+    fireworks.forEach((f,i)=>{
+        f.update();
+        f.draw();
+        if(f.particles[0].alpha<=0)fireworks.splice(i,1);
     });
-
-    meteors.forEach((m,i)=>{
-        ctx.strokeStyle="white";
-        ctx.lineWidth=2;
-        ctx.beginPath();
-        ctx.moveTo(m.x,m.y);
-        ctx.lineTo(m.x - m.length*Math.cos(m.angle), m.y + m.length*Math.sin(m.angle));
-        ctx.stroke();
-        m.x -= m.speed*Math.cos(m.angle);
-        m.y += m.speed*Math.sin(m.angle);
-        if(m.y>canvas.height || m.x<0) meteors.splice(i,1);
-    });
-
     requestAnimationFrame(animate);
 }
 animate();
 
-// 自动随机烟花
 setInterval(()=>{
-    launchFirework(Math.random()*canvas.width, Math.random()*canvas.height/2);
-}, 500);
+    fireworks.push(new Firework(
+        Math.random()*canvas.width,
+        Math.random()*canvas.height/2
+    ));
+},500);
 
-// 自动流星
-setInterval(createMeteor, 2000);
-
-// 点击放烟花
-canvas.addEventListener("click", e=>{
-    launchFirework(e.clientX,e.clientY);
-    launchHeart(e.clientX,e.clientY);
+canvas.addEventListener("click",e=>{
+    fireworks.push(new Firework(e.clientX,e.clientY));
 });
 
-// 倒数
+
+// 🎉 倒数
 let count=10;
 let cd=document.getElementById("countdown");
+
 let timer=setInterval(()=>{
     count--;
     cd.innerText=count;
     if(count<=0){
         clearInterval(timer);
         cd.innerText="🎆 HAPPY NEW YEAR 🎆";
-        // 页面加载完立即震动
-        if(navigator.vibrate) navigator.vibrate(300);
-        // 发烟花组成文字“郑有彣”
-        setTimeout(()=>{
-            // 粗略手动字母拼成形状
-            const text="郑有彣";
-            ctx.font="80px Microsoft YaHei";
-            ctx.fillStyle="white";
-            ctx.fillText(text, canvas.width/2-120, canvas.height/2);
-            // 每个像素发小烟花
-            let imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-            for(let y=0;y<imgData.height;y+=8){
-                for(let x=0;x<imgData.width;x+=8){
-                    let index=(y*imgData.width+x)*4;
-                    if(imgData.data[index+3]>128){
-                        launchFirework(x,y);
-                    }
-                }
-            }
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-        },500);
     }
 },1000);
 
-// 红包
+// 🧧 红包
 function createHongbao(){
     let hb=document.createElement("div");
     hb.className="hongbao";
@@ -238,5 +170,6 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('service-worker.js');
 }
 </script>
+
 </body>
 </html>
