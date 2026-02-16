@@ -2,12 +2,13 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>🎆 新年快乐 🎆</title>
+<title>🎆 郑有彣 新年快乐 🎆</title>
 <style>
     body {
         margin: 0;
         overflow: hidden;
         background: black;
+        font-family: "Arial Black", sans-serif;
     }
     canvas {
         display: block;
@@ -18,16 +19,36 @@
         width: 100%;
         text-align: center;
         color: gold;
-        font-size: 60px;
-        font-family: "Arial Black", sans-serif;
+        font-size: 70px;
+        font-weight: bold;
         text-shadow: 0 0 20px red, 0 0 40px yellow, 0 0 60px gold;
+        pointer-events: none;
+        animation: glow 1.5s infinite alternate;
+    }
+    @keyframes glow {
+        0% { text-shadow: 0 0 20px red, 0 0 40px yellow, 0 0 60px gold; }
+        100% { text-shadow: 0 0 30px red, 0 0 60px yellow, 0 0 80px gold; }
+    }
+    .red-packet {
+        position: absolute;
+        width: 40px;
+        height: 50px;
+        background: red;
+        border-radius: 5px;
+        color: gold;
+        font-weight: bold;
+        text-align: center;
+        line-height: 50px;
+        font-size: 18px;
+        box-shadow: 0 0 10px gold;
+        transform: rotate(0deg);
         pointer-events: none;
     }
 </style>
 </head>
 <body>
 
-<div class="text">🎉 新年快乐 2026 🎉</div>
+<div class="text">郑有彣 新年快乐</div>
 <canvas id="canvas"></canvas>
 
 <script>
@@ -36,10 +57,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let fireworks = [];
+// ---------- 星星 ----------
 let stars = [];
-
-// 随机生成夜空流星
 for(let i=0;i<100;i++){
     stars.push({
         x: Math.random()*canvas.width,
@@ -49,13 +68,14 @@ for(let i=0;i<100;i++){
     });
 }
 
+// ---------- 烟花 ----------
+let fireworks = [];
 function Firework(x, y) {
     this.x = x;
     this.y = y;
     this.particles = [];
     const color = Math.random()*360;
-
-    for (let i = 0; i < 80; i++) {  // 增加粒子数量
+    for (let i = 0; i < 80; i++) {
         this.particles.push({
             x: x,
             y: y,
@@ -65,15 +85,13 @@ function Firework(x, y) {
             color: color + Math.random()*60
         });
     }
-
     this.update = function () {
         this.particles.forEach(p => {
             p.x += Math.cos(p.angle) * p.speed;
-            p.y += Math.sin(p.angle) * p.speed + 0.5; // 模拟重力
+            p.y += Math.sin(p.angle) * p.speed + 0.5; // 重力
             p.alpha -= 0.02;
         });
     };
-
     this.draw = function () {
         this.particles.forEach(p => {
             ctx.globalAlpha = p.alpha;
@@ -86,6 +104,8 @@ function Firework(x, y) {
     };
 }
 
+// ---------- 流星 ----------
+let meteors = [];
 function Meteor() {
     this.x = Math.random()*canvas.width;
     this.y = Math.random()*canvas.height/2;
@@ -93,13 +113,11 @@ function Meteor() {
     this.speed = Math.random()*10 + 5;
     this.angle = Math.PI/4;
     this.alpha = 1;
-
     this.update = function () {
         this.x += Math.cos(this.angle) * this.speed;
         this.y += Math.sin(this.angle) * this.speed;
         this.alpha -= 0.01;
     }
-
     this.draw = function() {
         ctx.globalAlpha = this.alpha;
         ctx.strokeStyle = "white";
@@ -112,19 +130,44 @@ function Meteor() {
     }
 }
 
-let meteors = [];
+// ---------- 红包 ----------
+let redPackets = [];
+function RedPacket() {
+    this.el = document.createElement('div');
+    this.el.className = 'red-packet';
+    this.el.innerText = '🧧';
+    document.body.appendChild(this.el);
+    this.x = Math.random()*window.innerWidth;
+    this.y = -50;
+    this.speedY = Math.random()*2 + 1;
+    this.speedX = Math.random()*1 - 0.5;
+    this.angle = 0;
+    this.rotateSpeed = (Math.random()*2-1)*2;
+    this.update = () => {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.angle += this.rotateSpeed;
+        this.el.style.top = this.y + 'px';
+        this.el.style.left = this.x + 'px';
+        this.el.style.transform = `rotate(${this.angle}deg)`;
+        if(this.y > window.innerHeight){
+            document.body.removeChild(this.el);
+            redPackets.splice(redPackets.indexOf(this),1);
+        }
+    }
+    redPackets.push(this);
+}
 
-function animate() {
-    // 夜空背景
+// ---------- 动画 ----------
+function animate(){
     ctx.fillStyle = "rgba(0,0,0,0.2)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // 星星
-    stars.forEach(s => {
+    stars.forEach(s=>{
         ctx.globalAlpha = s.alpha;
         ctx.fillStyle = "white";
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, 2*Math.PI);
+        ctx.arc(s.x,s.y,s.size,0,2*Math.PI);
         ctx.fill();
         ctx.globalAlpha = 1;
     });
@@ -141,28 +184,22 @@ function animate() {
         if(m.alpha <=0) meteors.splice(i,1);
     });
 
+    redPackets.forEach(r => r.update());
+
     requestAnimationFrame(animate);
 }
 
-// 自动生成烟花
-setInterval(() => {
-    fireworks.push(new Firework(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height / 2
-    ));
-}, 700);
+// ---------- 自动生成 ----------
+setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2)), 700);
+setInterval(()=>meteors.push(new Meteor()), 1500);
+setInterval(()=>new RedPacket(), 800);
 
-// 自动生成流星
-setInterval(() => {
-    meteors.push(new Meteor());
-}, 1500);
-
-// 点击生成烟花
-canvas.addEventListener("click", function (e) {
+// ---------- 点击生成烟花 ----------
+canvas.addEventListener('click', e=>{
     fireworks.push(new Firework(e.clientX, e.clientY));
 });
 
-// 页面加载自动震动模拟
+// ---------- 页面震动 ----------
 window.onload = function(){
     if(navigator.vibrate) navigator.vibrate([100,50,100]);
 };
