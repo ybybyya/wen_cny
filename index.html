@@ -33,6 +33,23 @@ canvas { display: block; }
     100% { text-shadow: 0 0 20px #fff,0 0 40px #ff99c1,0 0 80px #ff2e8c,0 0 120px #ff66aa; }
 }
 
+.subtext {
+    position: absolute;
+    top: 28%;
+    width: 100%;
+    text-align: center;
+    color: #ffb6c1;
+    font-size: 50px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #fff,0 0 20px #ff99c1;
+    pointer-events: none;
+    animation: glowSub 2s infinite alternate;
+}
+@keyframes glowSub {
+    0% { text-shadow:0 0 5px #fff,0 0 10px #ff99c1; }
+    100% { text-shadow:0 0 10px #fff,0 0 20px #ff99c1; }
+}
+
 .red-packet {
     position: absolute;
     font-size: 30px;
@@ -42,6 +59,7 @@ canvas { display: block; }
 </head>
 <body>
 <div class="text">郑有彣 新年快乐</div>
+<div class="subtext">新年快乐，万事如意 🎉</div>
 <canvas id="canvas"></canvas>
 <script>
 const canvas = document.getElementById("canvas");
@@ -72,7 +90,7 @@ function Firework(x,y,isHeart=false){
             color:color+Math.random()*60,
             isHeart:isHeart,
             scale:isHeart?Math.random()*2+1:Math.random()*1.2+0.8,
-            trail:[{x:x,y:y}]
+            trail:[{x:x,y:y}] // 拖尾极短
         });
     }
     this.update=function(){
@@ -86,9 +104,9 @@ function Firework(x,y,isHeart=false){
                 p.y+=Math.sin(p.angle)*p.speed+0.5;
                 p.alpha-=0.02;
             }
-            // 拖尾
+            // 拖尾长度减少
             p.trail.push({x:p.x,y:p.y});
-            if(p.trail.length>8) p.trail.shift();
+            if(p.trail.length>2) p.trail.shift(); // 只保留2个点，拖尾非常短
         });
     };
     this.draw=function(){
@@ -106,14 +124,6 @@ function Firework(x,y,isHeart=false){
                 ctx.beginPath();
                 ctx.arc(p.x,p.y,3,0,2*Math.PI);
                 ctx.fill();
-                // 拖尾效果
-                ctx.beginPath();
-                for(let i=0;i<p.trail.length-1;i++){
-                    ctx.moveTo(p.trail[i].x,p.trail[i].y);
-                    ctx.lineTo(p.trail[i+1].x,p.trail[i+1].y);
-                }
-                ctx.strokeStyle=`hsla(${p.color},100%,50%,${p.alpha})`;
-                ctx.stroke();
             }
         });
         ctx.globalAlpha=1;
@@ -146,7 +156,7 @@ function RedPacket(){
     this.rotateSpeed=(Math.random()*2-1)*2;
     this.update=()=>{
         this.y+=this.speedY;
-        this.x+=this.speedX + Math.sin(this.y/50)*1; // 微晃
+        this.x+=this.speedX + Math.sin(this.y/50)*1;
         this.angle+=this.rotateSpeed;
         this.el.style.top=this.y+'px';
         this.el.style.left=this.x+'px';
@@ -186,7 +196,7 @@ setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width,Math.rand
 setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width,Math.random()*canvas.height/2,true)),2200);
 setInterval(()=>new RedPacket(),800);
 
-// --------- 点击生成烟花 ----------
+// 点击生成心形烟花
 canvas.addEventListener('click',e=>{
     fireworks.push(new Firework(e.clientX,e.clientY,true));
 });
