@@ -4,38 +4,40 @@
 <meta charset="UTF-8">
 <title>🎆 郑有彣 新年快乐 🎆</title>
 <style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background: radial-gradient(circle at top, #000010, #000033);
-    font-family: 'KaiTi', 'STKaiti', '楷体', 'Arial', sans-serif;
-}
-canvas { display: block; }
-.text {
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+        font-family: 'KaiTi', 'STKaiti', '楷体', 'Arial', sans-serif;
+    }
+    canvas {
+        display: block;
+    }
+    .text {
     position: absolute;
     top: 15%;
     width: 100%;
     text-align: center;
-    color: #ffeb3b;
+    color: #fff;
     font-size: 90px;
     font-weight: bold;
     text-shadow:
-      0 0 10px #ffeb3b,
-      0 0 20px #ffc107,
-      0 0 40px #ff9800,
-      0 0 60px #ffeb3b;
+      0 0 10px #fff,
+      0 0 20px #ff99c1,
+      0 0 40px #ff2e8c,
+      0 0 60px #ff66aa;
     pointer-events: none;
     animation: glow 1.8s infinite alternate;
 }
 @keyframes glow {
-    0% { text-shadow: 0 0 10px #ffeb3b,0 0 20px #ffc107,0 0 40px #ff9800,0 0 60px #ffeb3b; }
-    100% { text-shadow: 0 0 20px #ffeb3b,0 0 40px #ffc107,0 0 80px #ff9800,0 0 120px #ffeb3b; }
+    0% { text-shadow: 0 0 10px #fff,0 0 20px #ff99c1,0 0 40px #ff2e8c,0 0 60px #ff66aa; }
+    100% { text-shadow: 0 0 20px #fff,0 0 40px #ff99c1,0 0 80px #ff2e8c,0 0 120px #ff66aa; }
 }
-.red-packet {
-    position: absolute;
-    font-size: 28px;
-    pointer-events: none;
-}
+    .red-packet {
+        position: absolute;
+        font-size: 28px;
+        pointer-events: none;
+    }
 </style>
 </head>
 <body>
@@ -51,47 +53,42 @@ canvas.height = window.innerHeight;
 
 // ---------- 星空 ----------
 let stars = [];
-for(let i=0;i<120;i++){
+for(let i=0;i<100;i++){
     stars.push({
         x: Math.random()*canvas.width,
         y: Math.random()*canvas.height,
         size: Math.random()*2,
-        alpha: Math.random(),
-        delta: Math.random()*0.02+0.01
+        alpha: Math.random()
     });
 }
 
 // ---------- 烟花 ----------
 let fireworks = [];
-function Firework(x, y, type='circle') {
+function Firework(x, y, isHeart=false) {
     this.x = x;
     this.y = y;
     this.particles = [];
     const color = Math.random()*360;
-    const numParticles = type==='heart'? 120 : 80; 
+    const numParticles = isHeart ? 120 : 80; // 爱心粒子更多
     for (let i = 0; i < numParticles; i++) {
         let angle = Math.random() * 2 * Math.PI;
         this.particles.push({
             x: x,
             y: y,
             angle: angle,
-            speed: type==='heart'? Math.random()*2+2 : Math.random()*6+2,
+            speed: isHeart ? Math.random()*2+2 : Math.random()*6+2,
             alpha: 1,
             color: color + Math.random()*60,
-            type: type,
-            scale: type==='heart'? Math.random()*2+1 : Math.random()*1.2+0.8 
+            isHeart: isHeart,
+            scale: isHeart ? Math.random()*2+1 : Math.random()*1.2+0.8 // 爱心更大
         });
     }
     this.update = function () {
         this.particles.forEach(p => {
-            if(p.type==='heart'){
+            if(p.isHeart){
                 p.x += Math.cos(p.angle) * p.speed;
-                p.y += Math.sin(p.angle) * p.speed + 0.1; 
-                p.alpha -= 0.01; 
-            } else if(p.type==='bat'){
-                p.x += Math.cos(p.angle) * p.speed * 0.8;
-                p.y += Math.sin(p.angle) * p.speed * 0.8 + 0.2;
-                p.alpha -= 0.02;
+                p.y += Math.sin(p.angle) * p.speed + 0.1; // 慢漂浮
+                p.alpha -= 0.01; // 渐隐慢一点
             } else {
                 p.x += Math.cos(p.angle) * p.speed;
                 p.y += Math.sin(p.angle) * p.speed + 0.5;
@@ -102,16 +99,13 @@ function Firework(x, y, type='circle') {
     this.draw = function () {
         this.particles.forEach(p => {
             ctx.globalAlpha = p.alpha;
-            if(p.type==='heart'){
+            if(p.isHeart){
                 const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,6*p.scale);
-                grad.addColorStop(0,"#ff2e8c");
-                grad.addColorStop(0.5,"#ff99c1");
-                grad.addColorStop(1,"rgba(255,182,193,0)");
+                grad.addColorStop(0,"#ff2e8c");  // 深粉
+                grad.addColorStop(0.5,"#ff99c1"); // 浅粉
+                grad.addColorStop(1,"rgba(255,182,193,0)"); // 透明
                 ctx.fillStyle = grad;
-                drawHeart(p.x, p.y, 6*p.scale);
-            } else if(p.type==='bat'){
-                ctx.fillStyle = "#ffeb3b";
-                drawBat(p.x,p.y,6);
+                drawHeart(p.x, p.y, 6*p.scale); // 爱心更大
             } else {
                 ctx.fillStyle = `hsl(${p.color},100%,50%)`;
                 ctx.beginPath();
@@ -123,34 +117,31 @@ function Firework(x, y, type='circle') {
     };
 }
 
-// 绘制心形
+// 绘制心形函数
 function drawHeart(x,y,r){
     ctx.beginPath();
     const topCurveHeight = r*0.3;
     ctx.moveTo(x, y + topCurveHeight);
-    ctx.bezierCurveTo(x, y, x - r, y, x - r, y + topCurveHeight);
-    ctx.bezierCurveTo(x - r, y + r, x, y + r*1.5, x, y + r*2);
-    ctx.bezierCurveTo(x, y + r*1.5, x + r, y + r, x + r, y + topCurveHeight);
-    ctx.bezierCurveTo(x + r, y, x, y, x, y + topCurveHeight);
-    ctx.fill();
-}
-
-// 绘制蝙蝠侠轮廓
-function drawBat(x, y, size){
-    ctx.beginPath();
-    ctx.moveTo(x - size*4, y);
-    ctx.lineTo(x - size*2, y - size);
-    ctx.lineTo(x - size, y);
-    ctx.lineTo(x, y - size*2);
-    ctx.lineTo(x + size, y);
-    ctx.lineTo(x + size*2, y - size);
-    ctx.lineTo(x + size*4, y);
-    ctx.lineTo(x + size*2, y + size);
-    ctx.lineTo(x + size, y);
-    ctx.lineTo(x, y + size*2);
-    ctx.lineTo(x - size, y);
-    ctx.lineTo(x - size*2, y + size);
-    ctx.closePath();
+    ctx.bezierCurveTo(
+        x, y,
+        x - r, y,
+        x - r, y + topCurveHeight
+    );
+    ctx.bezierCurveTo(
+        x - r, y + r,
+        x, y + r*1.5,
+        x, y + r*2
+    );
+    ctx.bezierCurveTo(
+        x, y + r*1.5,
+        x + r, y + r,
+        x + r, y + topCurveHeight
+    );
+    ctx.bezierCurveTo(
+        x + r, y,
+        x, y,
+        x, y + topCurveHeight
+    );
     ctx.fill();
 }
 
@@ -186,15 +177,19 @@ function RedPacket() {
     this.el = document.createElement('div');
     this.el.className = 'red-packet';
     this.el.innerText = '🧧';
-    this.size = Math.random() * 20 + 40;
+
+    // 随机大小 40px ~ 60px，更大更显眼
+    this.size = Math.random() * 20 + 40; 
     this.el.style.fontSize = this.size + 'px';
+
     document.body.appendChild(this.el);
     this.x = Math.random() * window.innerWidth;
-    this.y = -this.size; 
+    this.y = -this.size; // 从红包高度以上开始
     this.speedY = Math.random() * 2 + 1;
     this.speedX = Math.random() * 1 - 0.5;
     this.angle = 0;
     this.rotateSpeed = (Math.random() * 2 - 1) * 2;
+
     this.update = () => {
         this.y += this.speedY;
         this.x += this.speedX;
@@ -207,8 +202,10 @@ function RedPacket() {
             redPackets.splice(redPackets.indexOf(this), 1);
         }
     }
+
     redPackets.push(this);
 }
+
 
 // ---------- 动画 ----------
 function animate(){
@@ -216,8 +213,6 @@ function animate(){
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     stars.forEach(s=>{
-        s.alpha += s.delta;
-        if(s.alpha > 1 || s.alpha < 0) s.delta *= -1;
         ctx.globalAlpha = s.alpha;
         ctx.fillStyle = "white";
         ctx.beginPath();
@@ -239,13 +234,13 @@ function animate(){
     });
 
     redPackets.forEach(r => r.update());
+
     requestAnimationFrame(animate);
 }
 
 // ---------- 自动生成 ----------
 setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2)), 700);
-setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, 'heart')), 2500);
-setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, 'bat')), 800);
+setInterval(()=>fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2, true)), 2500); // 爱心烟花更频繁
 setInterval(()=>meteors.push(new Meteor()), 1500);
 setInterval(()=>new RedPacket(), 800);
 
@@ -264,3 +259,4 @@ animate();
 
 </body>
 </html>
+
