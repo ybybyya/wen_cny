@@ -2,173 +2,104 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎆 新年快乐 2026 🎆</title>
-
-<link rel="manifest" href="manifest.json">
-
+<title>🎆 新年快乐 🎆</title>
 <style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background: radial-gradient(circle at bottom, #000010, #000000 70%);
-    font-family: "Microsoft YaHei", sans-serif;
-}
-
-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-#countdown {
-    position: absolute;
-    top: 30%;
-    width: 100%;
-    text-align: center;
-    font-size: 80px;
-    color: gold;
-    text-shadow: 0 0 20px red, 0 0 40px orange;
-}
-
-#message {
-    position: absolute;
-    top: 15%;
-    width: 100%;
-    text-align: center;
-    font-size: 28px;
-    color: gold;
-    opacity: 0;
-    animation: fadeIn 3s forwards;
-    animation-delay: 10s;
-    text-shadow: 0 0 15px red;
-}
-
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-.hongbao {
-    position: absolute;
-    font-size: 30px;
-    animation: fall 6s linear infinite;
-}
-
-@keyframes fall {
-    from { transform: translateY(-100px) rotate(0deg); }
-    to { transform: translateY(110vh) rotate(360deg); }
-}
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+    }
+    canvas {
+        display: block;
+    }
+    .text {
+        position: absolute;
+        top: 20%;
+        width: 100%;
+        text-align: center;
+        color: gold;
+        font-size: 40px;
+        font-family: sans-serif;
+        text-shadow: 0 0 20px red;
+    }
 </style>
 </head>
 <body>
 
-<div id="countdown">10</div>
-
-<div id="message">
-🎆 祝郑有彣 2026年 🎆<br>
-身体健康 💖 工作顺心 💼<br>
-生活顺利 🌸 新年快乐 🧧<br>
-爱我多多 💕
-</div>
-
+<div class="text">🎉 新年快乐 2026 🎉</div>
 <canvas id="canvas"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let fireworks = [];
 
-class Firework {
-    constructor(x,y){
-        this.particles = [];
-        let colors = ["#ff0000","#ffff00","#ff00ff","#00ffff","#ff8800","#ffffff"];
-        for(let i=0;i<80;i++){
-            this.particles.push({
-                x:x,
-                y:y,
-                angle:Math.random()*2*Math.PI,
-                speed:Math.random()*6+2,
-                radius:Math.random()*3+1,
-                alpha:1,
-                color:colors[Math.floor(Math.random()*colors.length)]
-            });
-        }
-    }
-    update(){
-        this.particles.forEach(p=>{
-            p.x+=Math.cos(p.angle)*p.speed;
-            p.y+=Math.sin(p.angle)*p.speed;
-            p.alpha-=0.015;
+function Firework(x, y) {
+    this.x = x;
+    this.y = y;
+    this.particles = [];
+
+    for (let i = 0; i < 50; i++) {
+        this.particles.push({
+            x: x,
+            y: y,
+            angle: Math.random() * 2 * Math.PI,
+            speed: Math.random() * 5 + 2,
+            alpha: 1
         });
     }
-    draw(){
-        this.particles.forEach(p=>{
-            ctx.globalAlpha=p.alpha;
-            ctx.fillStyle=p.color;
+
+    this.update = function () {
+        this.particles.forEach(p => {
+            p.x += Math.cos(p.angle) * p.speed;
+            p.y += Math.sin(p.angle) * p.speed;
+            p.alpha -= 0.02;
+        });
+    };
+
+    this.draw = function () {
+        this.particles.forEach(p => {
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = `hsl(${Math.random()*360},100%,50%)`;
             ctx.beginPath();
-            ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+            ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
             ctx.fill();
         });
-        ctx.globalAlpha=1;
-    }
+        ctx.globalAlpha = 1;
+    };
 }
 
-function animate(){
-    ctx.fillStyle="rgba(0,0,0,0.2)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    fireworks.forEach((f,i)=>{
+function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    fireworks.forEach((f, index) => {
         f.update();
         f.draw();
-        if(f.particles[0].alpha<=0)fireworks.splice(i,1);
+        if (f.particles[0].alpha <= 0) {
+            fireworks.splice(index, 1);
+        }
     });
+
     requestAnimationFrame(animate);
 }
-animate();
 
-setInterval(()=>{
-    fireworks.push(new Firework(
-        Math.random()*canvas.width,
-        Math.random()*canvas.height/2
-    ));
-},500);
-
-canvas.addEventListener("click",e=>{
-    fireworks.push(new Firework(e.clientX,e.clientY));
+canvas.addEventListener("click", function (e) {
+    fireworks.push(new Firework(e.clientX, e.clientY));
 });
 
+setInterval(() => {
+    fireworks.push(new Firework(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height / 2
+    ));
+}, 800);
 
-// 🎉 倒数
-let count=10;
-let cd=document.getElementById("countdown");
-
-let timer=setInterval(()=>{
-    count--;
-    cd.innerText=count;
-    if(count<=0){
-        clearInterval(timer);
-        cd.innerText="🎆 HAPPY NEW YEAR 🎆";
-    }
-},1000);
-
-// 🧧 红包
-function createHongbao(){
-    let hb=document.createElement("div");
-    hb.className="hongbao";
-    hb.innerText="🧧";
-    hb.style.left=Math.random()*100+"vw";
-    hb.style.animationDuration=(Math.random()*3+4)+"s";
-    document.body.appendChild(hb);
-    setTimeout(()=>hb.remove(),6000);
-}
-setInterval(createHongbao,800);
-
-// 注册 PWA
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('service-worker.js');
-}
+animate();
 </script>
 
 </body>
