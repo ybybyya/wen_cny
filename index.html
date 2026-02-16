@@ -9,7 +9,8 @@ body {
     margin: 0;
     overflow: hidden;
     background: radial-gradient(circle at bottom, #000022, #000000 70%);
-    font-family: "Microsoft YaHei", sans-serif;
+    font-family: "Microsoft YaHei", "Arial", sans-serif;
+    color: gold;
 }
 canvas {
     position: fixed;
@@ -30,16 +31,14 @@ canvas {
     top: 10%;
     width: 100%;
     text-align: center;
-    font-size: 30px;
+    font-size: 36px;
     color: gold;
     opacity: 0;
     animation: fadeIn 3s forwards;
     animation-delay: 10s;
     text-shadow: 0 0 15px red;
 }
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
+@keyframes fadeIn { to { opacity: 1; } }
 .hongbao {
     position: absolute;
     font-size: 30px;
@@ -56,7 +55,7 @@ canvas {
 <div id="countdown">10</div>
 
 <div id="message">
-🎆 祝 郑有彣 2026新年快乐 🧧<br>
+🎆 祝 郑有彣 2026 新年快乐 🧧<br>
 马年大吉 🐴 财富滚滚 💰<br>
 身体健康 💖 工作顺心 💼<br>
 爱我多多 💕
@@ -72,7 +71,6 @@ canvas.height = window.innerHeight;
 
 let fireworks = [];
 let stars = [];
-let meteors = [];
 let hongbaos = [];
 
 // ===== 星空背景 =====
@@ -93,31 +91,6 @@ function drawStars(){
         ctx.fill();
     });
 }
-
-// ===== 流星 =====
-function createMeteor(){
-    meteors.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height/2,
-        len: Math.random()*150+50,
-        speed: Math.random()*10+6
-    });
-}
-
-function drawMeteors(){
-    meteors.forEach((m,i)=>{
-        ctx.strokeStyle="rgba(255,255,255,0.8)";
-        ctx.lineWidth=2;
-        ctx.beginPath();
-        ctx.moveTo(m.x, m.y);
-        ctx.lineTo(m.x - m.len*0.5, m.y + m.len*0.5);
-        ctx.stroke();
-        m.x += m.speed;
-        m.y += m.speed*0.5;
-        if(m.x>canvas.width || m.y>canvas.height) meteors.splice(i,1);
-    });
-}
-setInterval(createMeteor, 2000);
 
 // ===== 烟花 =====
 class Firework {
@@ -190,7 +163,7 @@ function drawHongbao(){
         ctx.save();
         ctx.translate(hb.x,hb.y);
         ctx.rotate(Math.sin(Date.now()/200+hb.angle));
-        ctx.font = `${hb.size}px Arial`;
+        ctx.font = `${hb.size}px "Arial"`;
         ctx.fillText("🧧",0,0);
         ctx.restore();
         hb.y += hb.speed;
@@ -204,7 +177,6 @@ function animate(){
     ctx.fillStyle="rgba(0,0,0,0.1)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     drawStars();
-    drawMeteors();
     drawHongbao();
 
     fireworks.forEach((f,i)=>{
@@ -236,6 +208,10 @@ let timer=setInterval(()=>{
     if(count<=0){
         clearInterval(timer);
         cd.innerText="🎆 HAPPY NEW YEAR 🎆";
+        // 页面震动
+        if(window.navigator.vibrate){
+            window.navigator.vibrate([200,100,200]);
+        }
     }
 },1000);
 </script>
