@@ -13,7 +13,7 @@
     canvas {
         display: block;
     }
-    .text {
+    /* .text {
         position: absolute;
         top: 15%;
         width: 100%;
@@ -42,7 +42,7 @@
     @keyframes glow {
         0% { text-shadow: 0 0 10px #fff,0 0 20px #ff99c1,0 0 40px #ff2e8c,0 0 60px #ff66aa; }
         100% { text-shadow: 0 0 20px #fff,0 0 40px #ff99c1,0 0 80px #ff2e8c,0 0 120px #ff66aa; }
-    }
+    } */
     .red-packet {
         position: absolute;
         font-size: 28px;
@@ -56,6 +56,34 @@
     郑有彣 新年快乐
     <span class="sub-text">🎉 万事如意 🍀 财源滚滚 💰</span>
 </div>
+    <style>
+.text {
+    position: absolute;
+    top: 15%;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    font-size: 90px;
+    font-weight: bold;
+    text-shadow:
+      0 0 10px #fff,
+      0 0 20px #ff99c1,
+      0 0 40px #ff2e8c,
+      0 0 60px #ff66aa;
+    pointer-events: none;
+    animation: glow 1.8s infinite alternate;
+}
+.text .sub-text {
+    display: block;
+    font-size: 50px;
+    margin-top: 20px;
+    color: #fff; /* 保持纯白，不发光 */
+}
+@keyframes glow {
+    0% { text-shadow: 0 0 10px #fff,0 0 20px #ff99c1,0 0 40px #ff2e8c,0 0 60px #ff66aa; }
+    100% { text-shadow: 0 0 20px #fff,0 0 40px #ff99c1,0 0 80px #ff2e8c,0 0 120px #ff66aa; }
+}
+</style>
 <canvas id="canvas"></canvas>
 
 <script>
@@ -250,3 +278,4 @@ animate();
 
 </body>
 </html>
+
