@@ -30,31 +30,18 @@ canvas {
     top: 10%;
     width: 100%;
     text-align: center;
-    font-size: 30px;
+    font-size: 32px;
     color: gold;
     opacity: 0;
     animation: fadeIn 3s forwards;
-    animation-delay: 10s;
     text-shadow: 0 0 15px red;
 }
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-.hongbao {
-    position: absolute;
-    font-size: 30px;
-    animation: fall linear infinite;
-}
-@keyframes fall {
-    from { transform: translateY(-100px) rotate(0deg); }
-    to { transform: translateY(110vh) rotate(360deg); }
-}
+@keyframes fadeIn { to { opacity: 1; } }
 </style>
 </head>
 <body>
 
 <div id="countdown">10</div>
-
 <div id="message">
 🎆 祝 郑有彣 2026新年快乐 🧧<br>
 马年大吉 🐴 财富滚滚 💰<br>
@@ -70,31 +57,22 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let fireworks = [];
+// ================== 星空 ==================
 let stars = [];
-let meteors = [];
-let hongbaos = [];
-
-// ===== 星空背景 =====
 for(let i=0;i<150;i++){
-    stars.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*1.5,
-        alpha: Math.random()
-    });
+    stars.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, alpha: Math.random()});
 }
-
 function drawStars(){
     stars.forEach(s=>{
         ctx.fillStyle = `rgba(255,255,255,${s.alpha})`;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
         ctx.fill();
     });
 }
 
-// ===== 流星 =====
+// ================== 流星 ==================
+let meteors = [];
 function createMeteor(){
     meteors.push({
         x: Math.random()*canvas.width,
@@ -103,13 +81,12 @@ function createMeteor(){
         speed: Math.random()*10+6
     });
 }
-
 function drawMeteors(){
     meteors.forEach((m,i)=>{
         ctx.strokeStyle="rgba(255,255,255,0.8)";
         ctx.lineWidth=2;
         ctx.beginPath();
-        ctx.moveTo(m.x, m.y);
+        ctx.moveTo(m.x,m.y);
         ctx.lineTo(m.x - m.len*0.5, m.y + m.len*0.5);
         ctx.stroke();
         m.x += m.speed;
@@ -117,18 +94,20 @@ function drawMeteors(){
         if(m.x>canvas.width || m.y>canvas.height) meteors.splice(i,1);
     });
 }
-setInterval(createMeteor, 2000);
+setInterval(createMeteor,2000);
 
-// ===== 烟花 =====
-class Firework {
+// ================== 烟花粒子 ==================
+let fireworks = [];
+class Firework{
     constructor(x,y,type="circle"){
         this.particles = [];
         let colors = ["#ff4d4d","#ffff66","#ff66ff","#66ffff","#ffb366","#ffffff"];
         let count = type==="heart"?120:80;
         for(let i=0;i<count;i++){
-            let speed = Math.random()*7+2;
             let angle;
+            let speed = Math.random()*7+2;
             if(type==="heart"){
+                // 心形公式: (x² + (5y/4 - √|x|)²) = r²
                 let t = (i/count)*2*Math.PI;
                 let r = 10*(1 - Math.sin(t));
                 angle = Math.atan2(-r*Math.sin(t), r*Math.cos(t));
@@ -137,13 +116,12 @@ class Firework {
                 angle = Math.random()*2*Math.PI;
             }
             this.particles.push({
-                x:x,
-                y:y,
+                x:x, y:y,
                 angle:angle,
                 speed:speed,
-                radius:Math.random()*3+1,
+                radius: Math.random()*3+1,
                 alpha:1,
-                decay:Math.random()*0.015+0.01,
+                decay: Math.random()*0.015+0.01,
                 color: colors[Math.floor(Math.random()*colors.length)],
                 gravity:0.05,
                 friction:0.95
@@ -161,7 +139,8 @@ class Firework {
     draw(){
         this.particles.forEach(p=>{
             if(p.alpha<=0) return;
-            let gradient = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius*4);
+            // 光晕渐变
+            let gradient = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius*6);
             gradient.addColorStop(0,p.color);
             gradient.addColorStop(1,"rgba(0,0,0,0)");
             ctx.fillStyle=gradient;
@@ -170,19 +149,14 @@ class Firework {
             ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
             ctx.fill();
         });
-        ctx.globalAlpha=1;
+        ctx.globalAlpha = 1;
     }
 }
 
-// ===== 红包 =====
+// ================== 红包飘落 ==================
+let hongbaos = [];
 function createHongbao(){
-    let hb = {
-        x: Math.random()*canvas.width,
-        y: -50,
-        size: 30+Math.random()*20,
-        speed: 2+Math.random()*3,
-        angle: Math.random()*2*Math.PI
-    };
+    let hb = {x:Math.random()*canvas.width, y:-50, size:30+Math.random()*20, speed:2+Math.random()*3, angle:Math.random()*2*Math.PI};
     hongbaos.push(hb);
 }
 function drawHongbao(){
@@ -199,10 +173,12 @@ function drawHongbao(){
 }
 setInterval(createHongbao,800);
 
-// ===== 动画循环 =====
+// ================== 动画循环 ==================
 function animate(){
-    ctx.fillStyle="rgba(0,0,0,0.1)";
+    // 拖尾效果
+    ctx.fillStyle="rgba(0,0,0,0.15)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
+
     drawStars();
     drawMeteors();
     drawHongbao();
@@ -212,22 +188,23 @@ function animate(){
         f.draw();
         if(f.particles[0].alpha<=0) fireworks.splice(i,1);
     });
+
     requestAnimationFrame(animate);
 }
 animate();
 
-// ===== 自动生成烟花 =====
+// ================== 自动烟花 ==================
 setInterval(()=>{
     let type = Math.random()<0.3?"heart":"circle";
     fireworks.push(new Firework(Math.random()*canvas.width, Math.random()*canvas.height/2,type));
 },800);
 
-// ===== 点击触发烟花 =====
-canvas.addEventListener("click",e=>{
+// ================== 点击屏幕触发心形烟花 ==================
+canvas.addEventListener("click", e=>{
     fireworks.push(new Firework(e.clientX,e.clientY,"heart"));
 });
 
-// ===== 倒数 =====
+// ================== 倒数动画 ==================
 let count=10;
 let cd=document.getElementById("countdown");
 let timer=setInterval(()=>{
@@ -235,7 +212,11 @@ let timer=setInterval(()=>{
     cd.innerText=count;
     if(count<=0){
         clearInterval(timer);
-        cd.innerText="🎆 HAPPY NEW YEAR 🎆";
+        cd.style.fontSize="50px";
+        cd.innerText="🎆 新年快乐 2026 🎆";
+        // 延迟显示祝福文字
+        document.getElementById("message").style.animationDelay="0s";
+        document.getElementById("message").style.opacity="1";
     }
 },1000);
 </script>
